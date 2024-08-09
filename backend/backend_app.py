@@ -5,6 +5,8 @@ from flask_swagger_ui import get_swaggerui_blueprint
 import uuid
 from werkzeug.exceptions import BadRequest
 import json_parcer
+from datetime import date, datetime
+
 
 FILE_PATH = 'backend/data.json'
 # USER_PATH = 'backend/users.json'
@@ -84,13 +86,15 @@ def get_posts():
 @login_required
 def add_post():
     data = request.get_json()
-    if 'title' not in data or 'content' not in data:
-        return jsonify({'error': 'Title and content are required'}), 400
+    if 'title' not in data or 'content' not in data or 'author' not in data:
+        return jsonify({'error': 'Title, content and author are required'}), 400
 
     new_post = {
         'id': int(uuid.uuid4().int),
         'title': data['title'],
-        'content': data['content']
+        'content': data['content'],
+        'author': data['author'],
+        'date': date.today().isoformat()
     }
     blog_posts.append(new_post)
     json_parcer.write_file(FILE_PATH, blog_posts)
@@ -121,10 +125,15 @@ def update_post(id):
             if "content" in data:
                 post['content'] = data['content']
                 json_parcer.write_file(FILE_PATH, blog_posts)
+            if "author" in data:
+                post['author'] = data['author']
+                json_parcer.write_file(FILE_PATH, blog_posts)
             response = {
                 "id": post['id'],
                 "title": post['title'],
-                "content": post['content']
+                "content": post['content'],
+                "author": post['author'],
+                "date": date.today().isoformat()
             }
             return jsonify(response), 200
     return jsonify({"message": f"Post with id {id} was not found."}), 404    
@@ -134,10 +143,16 @@ def update_post(id):
 def search_posts():
     search_title = request.args.get('title')
     search_content = request.args.get('content')
+    search_author = request.args.get('author')
+    search_date = request.args.get('date')
 
     matching_posts = []
     for post in blog_posts:
-        if (search_title and search_title.lower() in post['title'].lower()) or (search_content and search_content.lower() in post['content'].lower()):
+        is_title = (search_title and search_title.lower() in post['title'].lower()) 
+        is_content = (search_content and search_content.lower() in post['content'].lower())
+        is_author = (search_author and search_author.lower() in post['author'].lower())
+        is_date = (search_date in post['date'].lower())
+        if is_title or is_content or is_author or is_date:
             matching_posts.append(post)
 
     return jsonify(matching_posts)
@@ -157,14 +172,14 @@ def sort_posts():
     if direction_sort not in ['asc', 'desc']:
         raise BadRequest('Invalid direction. Direction must be "asc" or "desc"')
 
-    if sort_by not in ['title', 'content']:
-        raise BadRequest('Invalid sort field. Valid sort fields are: title, content')
+    if sort_by not in ['title', 'content', 'author', 'date']:
+        raise BadRequest('Invalid sort field. Valid sort fields are: title, content, author, date')
 
     if sort_by and direction_sort:
-        if direction_sort == 'desc':
-            sorted_posts = sorted(blog_posts, key=lambda x: x[sort_by], reverse=True)
+        if sort_by == 'date':
+            sorted_posts = sorted(blog_posts, key=lambda x: datetime.strptime(x.get('date'), '%Y-%m-%d'), reverse=(direction_sort=='desc'))
         else:
-            sorted_posts = sorted(blog_posts, key=lambda x: x[sort_by], reverse=False)
+            sorted_posts = sorted(blog_posts, key=lambda x: x[sort_by], reverse=(direction_sort=='desc' and True or False))
 
     return jsonify(sorted_posts)
 

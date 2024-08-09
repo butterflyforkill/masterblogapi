@@ -50,7 +50,8 @@
                         "required": true,
                         "schema": {
                             "title": "title of the post",
-                            "content": "content of the post"
+                            "content": "content of the post",
+                            "author": "author of the post"
                         }
                     }
                 ],

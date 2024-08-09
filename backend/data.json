@@ -1,32 +1,30 @@
 [
     {
-        "id": 1,
-        "title": "First post",
-        "content": "This is the first post."
-    },
-    {
-        "id": 2,
-        "title": "Second post",
-        "content": "This is the second post."
-    },
-    {
-        "id": 195080269314976971039909509507839811967,
+        "id": 19492219888727943634658101245175567792,
         "title": "iuiui",
-        "content": "jkjkjkjkoo"
+        "content": "jkjkjkjkoo",
+        "author": "Molina",
+        "date": "2024-08-09"
     },
     {
-        "id": 17096060953384232987043181197784702299,
-        "title": "kjfdhgkd",
-        "content": "fjkghdkhfgkdhgkjdfbgk"
+        "id": 99433177330348234564350261618617104645,
+        "title": "Hello how",
+        "content": "Don't got away",
+        "author": "Elis",
+        "date": "2024-08-09"
     },
     {
-        "id": 128804619814711987233573564338338245818,
-        "title": "kjfdhgkd",
-        "content": "fjkghdkhfgkdhgkjdfbgk"
+        "id": 246066813733820383810268514818545446105,
+        "title": "Let me love you",
+        "content": "Day6 sonngs are amazing",
+        "author": "Molina",
+        "date": "2024-08-09"
     },
     {
-        "id": 117887593505338594423036547736875567109,
-        "title": "dpofdpo",
-        "content": "slddlfkdl"
+        "id": 228866718248447822946344764221351711977,
+        "title": "Sad Ending",
+        "content": "Of Your life",
+        "author": "Elis",
+        "date": "2024-08-09"
     }
 ]
