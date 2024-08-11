@@ -35,9 +35,30 @@ def generate_timestamp_id():
     return timestamp * 1000 + random_part
 
 
+def parse_date(date_string):
+    try:
+        return datetime.datetime.strptime(date_string, '%Y-%m-%d')
+    except ValueError:
+        return date_string
+
+
 @app.route('/api/posts', methods=['GET'])
 def get_posts():
-    return jsonify(blog_posts)
+    sort_by = request.args.get('sort')
+    direction_sort = request.args.get('direction', 'asc')
+
+    if sort_by:
+        if sort_by not in ['title', 'content', 'author', 'date']:
+            raise BadRequest('Invalid sort field. Valid sort fields are: title, content, author, date')
+
+        if sort_by == 'date':
+            sorted_posts = sorted(blog_posts, key=lambda x: datetime.strptime(x.get('date'), '%Y-%m-%d'), reverse=(direction_sort=='desc'))
+        else:
+            sorted_posts = sorted(blog_posts, key=lambda x: x[sort_by], reverse=(direction_sort=='desc'))
+    else:
+        sorted_posts = blog_posts  # Return all posts without sorting
+
+    return jsonify(sorted_posts)
 
 
 @app.route('/api/posts', methods=['POST'])
@@ -117,28 +138,6 @@ def search_posts():
 @app.errorhandler(400)
 def handle_bad_request(e):
     return jsonify({'error': 'Bad Request', 'message': str(e.description)}), 400
-
-
-# this sorting thing doesn't work proparly, need to think about  it !!!!!!
-@app.route('/api/posts', methods=['GET'])
-def sort_posts():
-    sort_by = request.args.get('sort')
-    direction_sort = request.args.get('direction')
-    sorted_posts = blog_posts
-
-    if direction_sort not in ['asc', 'desc']:
-        raise BadRequest('Invalid direction. Direction must be "asc" or "desc"')
-
-    if sort_by not in ['title', 'content', 'author', 'date']:
-        raise BadRequest('Invalid sort field. Valid sort fields are: title, content, author, date')
-
-    if sort_by and direction_sort:
-        if sort_by == 'date':
-            sorted_posts = sorted(blog_posts, key=lambda x: datetime.strptime(x.get('date'), '%Y-%m-%d'), reverse=(direction_sort=='desc'))
-        else:
-            sorted_posts = sorted(blog_posts, key=lambda x: x[sort_by], reverse=(direction_sort=='desc' and True or False))
-
-    return jsonify(sorted_posts)
 
 
 if __name__ == '__main__':

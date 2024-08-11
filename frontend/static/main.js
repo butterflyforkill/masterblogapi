@@ -11,31 +11,81 @@ window.onload = function() {
 
 // Function to fetch all the posts from the API and display them on the page
 function loadPosts() {
-    // Retrieve the base URL from the input field and save it to local storage
-    var baseUrl = document.getElementById('api-base-url').value;
+    const baseUrl = document.getElementById('api-base-url').value;
     localStorage.setItem('apiBaseUrl', baseUrl);
-
-    // Use the Fetch API to send a GET request to the /posts endpoint
+  
     fetch(baseUrl + '/posts')
-        .then(response => response.json())  // Parse the JSON data from the response
-        .then(data => {  // Once the data is ready, we can use it
-            // Clear out the post container first
-            const postContainer = document.getElementById('post-container');
-            postContainer.innerHTML = '';
+      .then(response => response.json())
+      .then(data => {
+        const postContainer = document.getElementById('post-container');
+        postContainer.innerHTML = '';
+  
+        data.forEach(post => {
+          const postDiv = document.createElement('div');
+          postDiv.className = 'post';
+          postDiv.innerHTML = `<h2>${post.title}</h2><p class="header">${post.author}</p><p>${post.content}</p>`;
+  
+          const buttonDiv = document.createElement('div');
+          buttonDiv.className = 'button-container';
+  
+          const deleteButton = document.createElement('button');
+          deleteButton.className = 'button';
+          deleteButton.textContent = 'Delete';
+          deleteButton.onclick = () => deletePost(post.id);
+  
+          const updateButton = document.createElement('button');
+          updateButton.className = 'button';
+          updateButton.textContent = 'Update';
+          updateButton.addEventListener('click', () => {
+            const updateForm = createUpdateForm(post); // Use a function to create the update form
+            postDiv.appendChild(updateForm);
+            updateForm.style.display = 'block';
+          });
+  
+          buttonDiv.appendChild(deleteButton);
+          buttonDiv.appendChild(updateButton);
+          postDiv.appendChild(buttonDiv);
+          postContainer.appendChild(postDiv);
+        });
+      })
+      .catch(error => console.error('Error:', error));
+  }
 
-            // For each post in the response, create a new post element and add it to the page
-            data.forEach(post => {
-                const postDiv = document.createElement('div');
-                postDiv.className = 'post';
-                postDiv.innerHTML = `<h2>${post.title}</h2><p class="header">${post.author}</p><p>${post.content}</p>
-                <button onclick="deletePost(${post.id})">Delete</button>
-                <button onclick="updatePost(${post.id})">Update</button>`;
-                
-                postContainer.appendChild(postDiv);
-            });
-        })
-        .catch(error => console.error('Error:', error));  // If an error occurs, log it to the console
-}
+// Function to create the update form (cleaner and reusable)
+function createUpdateForm(post) {
+    const updateForm = document.createElement('div');
+    updateForm.className = 'update-form';
+  
+    const titleInput = document.createElement('input');
+    titleInput.type = 'text';
+    titleInput.name = 'title';
+    titleInput.placeholder = 'Enter new title';
+    titleInput.value = post.title;
+  
+    const contentInput = document.createElement('textarea');
+    contentInput.name = 'content';
+    contentInput.placeholder = 'Enter new content';
+    contentInput.value = post.content;
+  
+    const submitButton = document.createElement('button');
+    submitButton.textContent = 'Save';
+    submitButton.addEventListener('click', () => {
+      const updatedData = {
+        title: titleInput.value,
+        content: contentInput.value
+      };
+      updatePost(post.id, updatedData);
+    });
+  
+    updateForm.appendChild(titleInput);
+    updateForm.appendChild(contentInput);
+    updateForm.appendChild(submitButton);
+  
+    updateForm.dataset.postId = post.id; // Add data-postId attribute
+  
+    return updateForm;
+  }
+
 
 // Function to send a POST request to the API to add a new post
 function addPost() {
@@ -76,16 +126,28 @@ function deletePost(postId) {
 }
 
 // Function to send a PUT request to the API to update a post
-function updatePost(postId) {
-    var baseUrl = document.getElementById('api-base-url').value;
-
-    // Use the Fetch API to send a PUT reqiest to the specific post's endpoint
+function updatePost(postId, updatedData) {
+    const baseUrl = document.getElementById('api-base-url').value;
+  
     fetch(baseUrl + '/posts/' + postId, {
-        method: 'PUT'
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(updatedData)
     })
     .then(response => {
-        console.log('Post updated', postId);
-        loadPosts(); // Reload the posts after updating one
+      if (response.ok) {
+        console.log('Post updated:', postId);
+        loadPosts(); // Reload posts after successful update
+      } else {
+        console.error('Error updating post:', postId, response.status);
+        // Handle error (e.g., display error message to user)
+      }
     })
-    .catch(error => console.error('Error:', error)); // If an error occurs, log it to the console
-}
+    .catch(error => {
+      console.error('Network error:', error);
+      // Handle network errors (e.g., display error message to user)
+    });
+  }
+  
