@@ -13,7 +13,28 @@ window.onload = function() {
 function loadPosts() {
     const baseUrl = document.getElementById('api-base-url').value;
     localStorage.setItem('apiBaseUrl', baseUrl);
-  
+    // Add sorting elements
+    const sortContainer = document.createElement('div');
+    sortContainer.classList.add('sort-container');
+
+    const sortBySelect = document.createElement('select');
+    sortBySelect.id = 'sort-by';
+    sortBySelect.innerHTML = `
+        <option value="">Sort By</option>
+        <option value="title">Title</option>
+        <option value="date">Date</option>
+        <option value="author">Author</option>
+    `;
+
+    const sortButton = document.createElement('button');
+    sortButton.id = 'sort-button';
+    sortButton.textContent = 'Sort';
+
+    sortContainer.appendChild(sortBySelect);
+    sortContainer.appendChild(sortButton);
+
+    document.getElementById('post-container').parentNode.insertBefore(sortContainer, document.getElementById('post-container'));
+    
     fetch(baseUrl + '/posts')
       .then(response => response.json())
       .then(data => {
@@ -47,8 +68,51 @@ function loadPosts() {
           postDiv.appendChild(buttonDiv);
           postContainer.appendChild(postDiv);
         });
+        sortButton.addEventListener('click', () => {
+            const sortBy = sortBySelect.value;
+            const sortedPostsUrl = `${baseUrl}/posts?sort=${sortBy}`; // Modify URL based on your backend logic
+            fetch(sortedPostsUrl)
+              .then(response => response.json())
+              .then(sortedData => {
+                displayPosts(sortedData); // Update UI with sorted posts
+              })
+              .catch(error => console.error('Error:', error));
+          });
       })
       .catch(error => console.error('Error:', error));
+  }
+// Function for displaying sorted posts
+function displayPosts(posts) {
+    const postContainer = document.getElementById('post-container');
+    postContainer.innerHTML = '';
+  
+    posts.forEach(post => {
+        const postDiv = document.createElement('div');
+        postDiv.className = 'post';
+        postDiv.innerHTML = `<h2>${post.title}</h2><p class="header">${post.author}</p><p>${post.content}</p>`;
+
+        const buttonDiv = document.createElement('div');
+        buttonDiv.className = 'button-container';
+
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'button';
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = () => deletePost(post.id);
+
+        const updateButton = document.createElement('button');
+        updateButton.className = 'button';
+        updateButton.textContent = 'Update';
+        updateButton.addEventListener('click', () => {
+          const updateForm = createUpdateForm(post); // Use a function to create the update form
+          postDiv.appendChild(updateForm);
+          updateForm.style.display = 'block';
+        });
+
+        buttonDiv.appendChild(deleteButton);
+        buttonDiv.appendChild(updateButton);
+        postDiv.appendChild(buttonDiv);
+        postContainer.appendChild(postDiv);
+    });
   }
 
 // Function to create the update form (cleaner and reusable)
