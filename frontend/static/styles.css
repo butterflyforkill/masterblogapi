@@ -73,6 +73,10 @@ body {
     margin: 10px 0 0;
     color: #333;
 }
+.header {
+    font-style: italic;
+    font-weight: bold;
+}
 
 .post button {
     position: absolute;

@@ -27,8 +27,10 @@ function loadPosts() {
             data.forEach(post => {
                 const postDiv = document.createElement('div');
                 postDiv.className = 'post';
-                postDiv.innerHTML = `<h2>${post.title}</h2><p>${post.content}</p>
-                <button onclick="deletePost(${post.id})">Delete</button>`;
+                postDiv.innerHTML = `<h2>${post.title}</h2><p class="header">${post.author}</p><p>${post.content}</p>
+                <button onclick="deletePost(${post.id})">Delete</button>
+                <button onclick="updatePost(${post.id})">Update</button>`;
+                
                 postContainer.appendChild(postDiv);
             });
         })
@@ -41,12 +43,13 @@ function addPost() {
     var baseUrl = document.getElementById('api-base-url').value;
     var postTitle = document.getElementById('post-title').value;
     var postContent = document.getElementById('post-content').value;
+    var postAuthor = document.getElementById('post-author').value;
 
     // Use the Fetch API to send a POST request to the /posts endpoint
     fetch(baseUrl + '/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: postTitle, content: postContent })
+        body: JSON.stringify({ title: postTitle, content: postContent, author: postAuthor })
     })
     .then(response => response.json())  // Parse the JSON data from the response
     .then(post => {
@@ -59,6 +62,7 @@ function addPost() {
 // Function to send a DELETE request to the API to delete a post
 function deletePost(postId) {
     var baseUrl = document.getElementById('api-base-url').value;
+    console.log(baseUrl)
 
     // Use the Fetch API to send a DELETE request to the specific post's endpoint
     fetch(baseUrl + '/posts/' + postId, {
@@ -69,4 +73,19 @@ function deletePost(postId) {
         loadPosts(); // Reload the posts after deleting one
     })
     .catch(error => console.error('Error:', error));  // If an error occurs, log it to the console
+}
+
+// Function to send a PUT request to the API to update a post
+function updatePost(postId) {
+    var baseUrl = document.getElementById('api-base-url').value;
+
+    // Use the Fetch API to send a PUT reqiest to the specific post's endpoint
+    fetch(baseUrl + '/posts/' + postId, {
+        method: 'PUT'
+    })
+    .then(response => {
+        console.log('Post updated', postId);
+        loadPosts(); // Reload the posts after updating one
+    })
+    .catch(error => console.error('Error:', error)); // If an error occurs, log it to the console
 }
