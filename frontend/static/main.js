@@ -24,13 +24,22 @@ function loadPosts() {
         <option value="title">Title</option>
         <option value="date">Date</option>
         <option value="author">Author</option>
+        <option value="content">Content</option>
     `;
+    const directionSort = document.createElement('select')
+    directionSort.id = 'direction-to'
+    directionSort.innerHTML = `
+        <option value="">Default</option>
+        <option value="desc">desc</option>
+        <option value="asc">asc</option>
+    `
 
     const sortButton = document.createElement('button');
     sortButton.id = 'sort-button';
     sortButton.textContent = 'Sort';
 
     sortContainer.appendChild(sortBySelect);
+    sortContainer.appendChild(directionSort);
     sortContainer.appendChild(sortButton);
 
     document.getElementById('post-container').parentNode.insertBefore(sortContainer, document.getElementById('post-container'));
@@ -70,7 +79,8 @@ function loadPosts() {
         });
         sortButton.addEventListener('click', () => {
             const sortBy = sortBySelect.value;
-            const sortedPostsUrl = `${baseUrl}/posts?sort=${sortBy}`; // Modify URL based on your backend logic
+            const directionTo = directionSort.value
+            const sortedPostsUrl = `${baseUrl}/posts?sort=${sortBy}&direction=${directionTo}`; // Modify URL based on your backend logic
             fetch(sortedPostsUrl)
               .then(response => response.json())
               .then(sortedData => {
