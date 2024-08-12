@@ -80,7 +80,8 @@ function loadPosts() {
           });
       })
       .catch(error => console.error('Error:', error));
-  }
+}
+
 // Function for displaying sorted posts
 function displayPosts(posts) {
     const postContainer = document.getElementById('post-container');
@@ -113,7 +114,7 @@ function displayPosts(posts) {
         postDiv.appendChild(buttonDiv);
         postContainer.appendChild(postDiv);
     });
-  }
+}
 
 // Function to create the update form (cleaner and reusable)
 function createUpdateForm(post) {
@@ -148,8 +149,7 @@ function createUpdateForm(post) {
     updateForm.dataset.postId = post.id; // Add data-postId attribute
   
     return updateForm;
-  }
-
+}
 
 // Function to send a POST request to the API to add a new post
 function addPost() {
@@ -213,5 +213,5 @@ function updatePost(postId, updatedData) {
       console.error('Network error:', error);
       // Handle network errors (e.g., display error message to user)
     });
-  }
+}
   

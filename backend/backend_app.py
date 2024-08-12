@@ -30,12 +30,27 @@ app.register_blueprint(swagger_ui_blueprint, url_prefix=SWAGGER_URL)
 
 
 def generate_timestamp_id():
+    """
+    Generate a unique timestamp-based ID for a new blog post.
+
+    Returns:
+    int: A unique ID based on the current timestamp and a random component.
+    """
     timestamp = int(time.time() * 1000)  # Milliseconds
     random_part = random.randint(0, 999)  # Adjust range as needed
     return timestamp * 1000 + random_part
 
 
 def parse_date(date_string):
+    """
+    Parse a date string into a date object.
+
+    Args:
+    date_string (str): The date string to be parsed.
+
+    Returns:
+    datetime.date: The parsed date object.
+    """
     try:
         return datetime.datetime.strptime(date_string, '%Y-%m-%d')
     except ValueError:
@@ -44,6 +59,12 @@ def parse_date(date_string):
 
 @app.route('/api/posts', methods=['GET'])
 def get_posts():
+    """
+    Retrieve all blog posts, with optional sorting parameters.
+
+    Returns:
+    flask.Response: A JSON response containing the sorted or unsorted blog posts.
+    """
     sort_by = request.args.get('sort')
     direction_sort = request.args.get('direction', 'asc')
 
@@ -63,6 +84,13 @@ def get_posts():
 
 @app.route('/api/posts', methods=['POST'])
 def add_post():
+    """
+    Add a new blog post to the collection.
+
+    Returns:
+    flask.Response: A JSON response containing the newly added blog post,
+    or an error message if the request is invalid.
+    """
     data = request.get_json()
     if 'title' not in data or 'content' not in data or 'author' not in data:
         return jsonify({'error': 'Title, content and author are required'}), 400
@@ -83,6 +111,16 @@ def add_post():
 @app.route('/api/posts/<int:id>', methods=['DELETE'])
 @cross_origin()
 def delete_post(id):
+    """
+    Delete a blog post by its ID.
+
+    Args:
+    id (int): The ID of the post to be deleted.
+
+    Returns:
+    flask.Response: A JSON response confirming the deletion,
+    or an error message if the post is not found.
+    """
     for post in blog_posts:
         if post['id'] == id:
             blog_posts.remove(post)
@@ -93,6 +131,16 @@ def delete_post(id):
 
 @app.route('/api/posts/<int:id>', methods=['PUT'])
 def update_post(id):
+    """
+    Update a blog post by its ID.
+
+    Args:
+    id (int): The ID of the post to be updated.
+
+    Returns:
+    flask.Response: A JSON response containing the updated blog post,
+    or an error message if the post is not found.
+    """
     data = request.get_json()
     for post in blog_posts:
         if post['id'] == id:
@@ -118,6 +166,12 @@ def update_post(id):
 
 @app.route('/api/posts/search', methods=['GET'])
 def search_posts():
+    """
+    Search for blog posts based on various criteria.
+
+    Returns:
+    flask.Response: A JSON response containing the matching blog posts.
+    """
     search_title = request.args.get('title')
     search_content = request.args.get('content')
     search_author = request.args.get('author')
@@ -137,6 +191,15 @@ def search_posts():
 
 @app.errorhandler(400)
 def handle_bad_request(e):
+    """
+    Handle bad request errors.
+
+    Args:
+    e (werkzeug.exceptions.BadRequest): The BadRequest exception.
+
+    Returns:
+    flask.Response: A JSON response containing the error message for the bad request.
+    """
     return jsonify({'error': 'Bad Request', 'message': str(e.description)}), 400
 
 
