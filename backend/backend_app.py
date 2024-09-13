@@ -172,18 +172,14 @@ def search_posts():
     Returns:
     flask.Response: A JSON response containing the matching blog posts.
     """
-    search_title = request.args.get('title')
-    search_content = request.args.get('content')
-    search_author = request.args.get('author')
-    search_date = request.args.get('date')
+    search_title = request.args.get('title', '')
+    search_content = request.args.get('content', '')
 
     matching_posts = []
     for post in blog_posts:
         is_title = (search_title and search_title.lower() in post['title'].lower()) 
         is_content = (search_content and search_content.lower() in post['content'].lower())
-        is_author = (search_author and search_author.lower() in post['author'].lower())
-        is_date = (search_date in post['date'].lower())
-        if is_title or is_content or is_author or is_date:
+        if is_title or is_content:
             matching_posts.append(post)
 
     return jsonify(matching_posts)
