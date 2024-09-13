@@ -5,6 +5,12 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def home():
+    """
+    Renders the home page template.
+
+    Returns:
+        flask.Response: The rendered HTML content of the 'index.html' template.
+    """
     return render_template("index.html")
 
 
